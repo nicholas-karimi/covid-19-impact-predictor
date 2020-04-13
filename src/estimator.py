@@ -23,6 +23,10 @@ def bedCapacity(totalHospitalBeds, severeCasesByRequestedTime):
 
       return int(availableForSevereCases)
 
+def dollarFlight(infectionByTime, avgDailyIncomeInUSD, avgDailyIncomePopulation, periodType, time):
+      days = infectionsByTime(periodType, time)
+      return int((infectionByTime * avgDailyIncomeInUSD * avgDailyIncomePopulation)/days)
+
 def impact(data, impactType):
       reportedCases = data['reportedCases']
       if impactType == 'normal':
@@ -43,10 +47,23 @@ def impact(data, impactType):
 
       hospitalBedsByRequestedTime = bedCapacity(totalBeds, severeCasesByRequestedTime)
 
+      casesForICUByRequestedTime = int(infectionsByRequestedTime * 0.05)
+
+      casesForVentilatorsByRequestedTime = int(infectionsByRequestedTime * 0.02)
+
+      avgIncome = data['region']['avgDailyIncomeInUSD']
+      avgIncomePopulation = data['region']['avgDailyIncomePopulation']
+
+      dollarInFlight = dollarFlight(infectionsByRequestedTime, avgIncome, 
+                                    avgIncomePopulation, periodType, timeToElapse)
+
       return dict(currentlyInfected = currentlyInfected,
                         infectionsByRequestedTime = infectionsByRequestedTime,
                         severeCasesByRequestedTime = severeCasesByRequestedTime,
-                        hospitalBedsByRequestedTime = hospitalBedsByRequestedTime)
+                        hospitalBedsByRequestedTime = hospitalBedsByRequestedTime,
+                        casesForICUByRequestedTime = casesForICUByRequestedTime,
+                        casesForVentilatorsByRequestedTime = casesForVentilatorsByRequestedTime,
+                        dollarInFlight = '{:.2f}'.format(dollarInFlight))
 
 def estimator(data):
       data = {
@@ -56,10 +73,5 @@ def estimator(data):
             'severeImpact': impact(data, 'severe'),
       }
       return data
-
-
-
-
-
 
 
